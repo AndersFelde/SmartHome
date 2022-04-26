@@ -10,13 +10,13 @@
 
 // variable
 #define F_CPU 1000000 // 1MHz
-#define RS 5
-#define RW 6
-#define ENABLE 7
-#define DATA_CONTROL DDRD
-#define DATA PORTD
-#define CMD_CONTROL DDRA
-#define CMD PORTA
+#define RS 0
+#define RW 1
+#define ENABLE 2
+#define DATA_CONTROL DDRA
+#define DATA PORTA
+#define CMD_CONTROL DDRB
+#define CMD PORTB
 
 // konstante
 #define ENABLE_ON (CMD |= (1 << ENABLE))
