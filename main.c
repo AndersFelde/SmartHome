@@ -12,74 +12,97 @@
 #include <avr/io.h>
 #include <stdlib.h>
 #include <util/delay.h>
-
-int Alarm = 0;
+char buf[30];
 
 void handleButtonPress(int press) {
-    char tall[20];
-
-    itoa(press, tall, 10);
+    itoa(press, buf, 10);
 
     if (press != -1) {
         clearScreen();
-        sendString(tall);
+        sendString(buf);
     } else {
         setCursor(1, 2);
-        sendString(tall);
+        sendString(buf);
     }
 
-    itoa(PIND, tall, 2);
-    sendString(tall);
+    itoa(PIND, buf, 2);
+    sendString(buf);
 }
 
 void writeButtonPress(int press) {
-    char tall[20];
-    itoa(press, tall, 10);
-    sendString(tall);
+    itoa(press, buf, 10);
+    sendString(buf);
+}
+
+int test() {
+    setUpLCD();
+    sendString("Test");
+    return 0;
 }
 
 int main(void) {
-    // test
-    /* Replace with your application code */
+    Alarm = 0;
+    initAlarm();
     initButtons();
     setUpLCD();
-    sendString("Det funker123");
+    USART_Init(2400);
     int press;
+    char receiveChar;
     while (1) {
-        if (ALARM == 0) {
+        if (Alarm == 0) {
 
             press = checkButtonPress(); // sjekker om knapp er trykket
             handleButtonPress(press);
 
-            char receiveChar = USART_Receive();
+            receiveChar = USART_Receive();
 
-            if (receiveChar != -1) {
-                triggerWarning();
+            if (receiveChar != '0') {
+                clearScreen();
+                sendString("Fikk alarm");
+                setCursor(1, 2);
+
+                sendCharacter(receiveChar);
+                itoa(receiveChar, buf, 2);
+                sendString(" ");
+                sendString(buf);
+                _delay_ms(2000);
+                triggerWarning(60);
+                clearScreen();
+            } else {
+                setCursor(1, 1);
+                sendString("Ingen alarm");
             }
 
-        } else if (ALARM == 2) {
-            clearScreen();
+        } else if (Alarm == 2) {
+            // clearScreen();
             setCursor(1, 1);
-            sendString("Du har 60 sekunder");
+            sendString("Du har ");
+            itoa(CountDown, buf, 10);
+            sendString(buf);
+            sendString(" sek igjen");
             setCursor(1, 2);
             sendString("PIN: ");
 
             int writtenNum = 0;
             int PIN = 0;
 
-            while (writtenNum < 4) {
-                press = checkButtonPress(); // sjekker om knapp er trykket
-                if (press != -1) {
-                    PIN += press;
-                    writeButtonPress(press);
-                }
+            // while (writtenNum < 4) {
+            press = checkButtonPress(); // sjekker om knapp er trykket
+            if (press != -1) {
+                PIN += press;
+                writeButtonPress(press);
             }
+            // }
 
-            if (PIN = 1 + 2 + 3 + 4) {
-                stopAlarm();
-            } else {
-                triggerAlarm();
-            }
+            // if (PIN == 1 + 2 + 3 + 4) {
+            //   stopAlarm();
+            //} else {
+            //  triggerAlarm();
+            //}
+        } else if (Alarm == 1) {
+            // clearScreen();
+            setCursor(1, 1);
+            sendString("ENDELIG ALARM");
         }
     }
 }

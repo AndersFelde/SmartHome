@@ -20,33 +20,37 @@ void initAlarm() {
     // setter MC til CTC mode, som vil si at TOP i interrupt er OCR1A
 }
 
-void startTimer(int seconds) {
+void startTimer() {
     // TIMSK |= 1 << OCIE1B; // Enabler sammenligning med OCR1"B"
-    OCR1A = 15624 * seconds; // 60 sekunder
-    TIMSK |= 1 << OCIE1A;    // Enabler sammenligning med OCR1"A"
+    OCR1A = 15624;        // 1 sekund
+    TIMSK |= 1 << OCIE1A; // Enabler sammenligning med OCR1"A"
 }
 
 void stopTimer() { TIMSK &= ~(1 << OCIE1A); }
 
 ISR(TIMER1_COMPA_vect) {
     // funksjon som blir kallet til klokken har telt til OCR1A sin verdi
-    triggerAlarm();
+    CountDown--;
+
+    if (CountDown == 0)
+        triggerAlarm();
 }
 
-void triggerWarning() {
-    ALARM = 2;
+void triggerWarning(int seconds) {
+    Alarm = 2;
     USART_Transmit('2');
-    startTimer(60);
+    CountDown = seconds;
+    startTimer();
 }
 
 void triggerAlarm() {
-    ALARM = 1;
+    Alarm = 1;
     USART_Transmit('1');
     stopTimer();
 }
 
 void stopAlarm() {
-    ALARM = 0;
+    Alarm = 0;
     USART_Transmit('0');
     stopTimer();
 }

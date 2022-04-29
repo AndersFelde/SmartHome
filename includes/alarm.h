@@ -7,7 +7,8 @@
 
 #ifndef ALARM_H_
 #define ALARM_H_
-#define ALARM
+int Alarm;
+int CountDown;
 void initAlarm();
 void startTimer();
 void triggerWarning();

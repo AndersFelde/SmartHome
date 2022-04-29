@@ -48,9 +48,9 @@ void USART_Transmit(unsigned int data) {
 
 char USART_Receive(void) {
     if (!(UCSRA & (1 << RXC))) {
-        return -1;
+        return '0';
     } // Wait for the RXC to not have 0
-    else {
-        return UDR;
-    } // Get that data outa there and back to the main program!
+      /*else {*/
+    return UDR;
+    //} // Get that data outa there and back to the main program!
 }
