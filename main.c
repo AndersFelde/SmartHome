@@ -7,6 +7,7 @@
 
 #include "includes/LCD.h"
 #include "includes/USART.h"
+#include "includes/alarm.h"
 #include "includes/button.h"
 #include <avr/io.h>
 #include <stdlib.h>
@@ -31,14 +32,10 @@ void handleButtonPress(int press) {
     sendString(tall);
 }
 
-void triggerAlarm() {
-    Alarm = 1;
-    USART_Transmit('0');
-}
-
-void stopAlarm() {
-    Alarm = 0;
-    USART_Transmit('1');
+void writeButtonPress(int press) {
+    char tall[20];
+    itoa(press, tall, 10);
+    sendString(tall);
 }
 
 int main(void) {
@@ -49,18 +46,40 @@ int main(void) {
     sendString("Det funker123");
     int press;
     while (1) {
-        if (Alarm == 0) {
+        if (ALARM == 0) {
 
             press = checkButtonPress(); // sjekker om knapp er trykket
             handleButtonPress(press);
 
-            // char receiveChar = USART_Receive();
+            char receiveChar = USART_Receive();
 
-            // if (receiveChar != -1) {
-            //    triggerAlarm();
-            // }
-            sendString("ok");
-        } else {
+            if (receiveChar != -1) {
+                triggerWarning();
+            }
+
+        } else if (ALARM == 2) {
+            clearScreen();
+            setCursor(1, 1);
+            sendString("Du har 60 sekunder");
+            setCursor(1, 2);
+            sendString("PIN: ");
+
+            int writtenNum = 0;
+            int PIN = 0;
+
+            while (writtenNum < 4) {
+                press = checkButtonPress(); // sjekker om knapp er trykket
+                if (press != -1) {
+                    PIN += press;
+                    writeButtonPress(press);
+                }
+            }
+
+            if (PIN = 1 + 2 + 3 + 4) {
+                stopAlarm();
+            } else {
+                triggerAlarm();
+            }
         }
     }
 }
