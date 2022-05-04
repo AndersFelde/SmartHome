@@ -10,29 +10,30 @@
 #include "includes/alarm.h"
 #include "includes/button.h"
 #include <avr/io.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <util/delay.h>
-char buf[30];
 
 void handleButtonPress(int press) {
-    itoa(press, buf, 10);
+    // itoa(press, buf, 10);
 
     if (press != -1) {
         clearScreen();
-        sendString(buf);
+        // sendString(buf);
     } else {
         setCursor(1, 2);
-        sendString(buf);
+        // sendString(buf);
     }
 
-    itoa(PIND, buf, 2);
-    sendString(buf);
+    // itoa(PIND, buf, 2);
+    // sendString(buf);
 }
 
-void writeButtonPress(int press) {
-    itoa(press, buf, 10);
-    sendString(buf);
-}
+// void writeButtonPress(int press) {
+// itoa(press, buf, 10);
+//  sendString(buf);
+//}
 
 int test() {
     setUpLCD();
@@ -48,8 +49,10 @@ int main(void) {
     USART_Init(2400);
     int press;
     char receiveChar;
-    int PIN = 0;
-    int timesPressed = 0;
+    char PIN[5];
+    PIN[0] = '\0'; // for at string skal være tom
+    int PIN_i = 0;
+    char buf[30];
 
     while (1) {
         if (Alarm == 0) {
@@ -59,7 +62,7 @@ int main(void) {
 
             receiveChar = USART_Receive();
 
-            if (receiveChar != '0') {
+            if (receiveChar != '0' && coolDown == 0) {
                 clearScreen();
                 sendString("Fikk alarm");
                 //_delay_ms(2000);
@@ -67,6 +70,12 @@ int main(void) {
             } else {
                 setCursor(1, 1);
                 sendString("Ingen alarm");
+
+                if (coolDown) {
+                    setCursor(1, 2);
+                    sprintf(buf, "Cooldown: %d", CountDown);
+                    sendString(buf);
+                }
             }
 
         } else if (Alarm == 2) {
@@ -78,29 +87,77 @@ int main(void) {
             sendString(" sek igjen");
             setCursor(1, 2);
             sendString("PIN: ");
-
-            int writtenNum = 0;
+            sendString(PIN);
+            sendString("    "); // for å fjerne gamle pins
 
             // while (writtenNum < 4) {
             press = checkButtonPress(); // sjekker om knapp er trykket
             if (press != -1) {
-                PIN += press;
-                timesPressed++;
-                writeButtonPress(press);
+                if (press != 7) {
+
+                    press = press + '0';
+                    PIN[PIN_i] = press;
+                    PIN[PIN_i + 1] = '\0';
+                    PIN_i++;
+                } else {
+                    if (PIN_i > 0) {
+                        PIN_i--;
+                        PIN[PIN_i] = '\0';
+                    }
+                }
+                // writeButtonPress(press);
             }
             // }
 
-            if (PIN == 1 + 2 + 3 + 4) {
+            if (strcmp(PIN, "1234") == 0) {
                 stopAlarm();
-                PIN = 0;
-                timesPressed = 0;
-            } else if (timesPressed == 4) {
+                strcpy(PIN, "");
+                PIN_i = 0;
+                // startCooldown();
+                //_delay_ms(1000);
+            } else if (strlen(PIN) == 4) {
                 triggerAlarm();
+                strcpy(PIN, "");
+                PIN_i = 0;
             }
 
         } else if (Alarm == 1) {
             setCursor(1, 1);
             sendString("ENDELIG ALARM");
+            setCursor(1, 2);
+            sendString("PIN: ");
+            sendString(PIN);
+            sendString("    "); // for å fjerne gamle pins
+
+            // while (writtenNum < 4) {
+            press = checkButtonPress(); // sjekker om knapp er trykket
+            if (press != -1) {
+                if (press != 7) {
+
+                    press = press + '0';
+                    PIN[PIN_i] = press;
+                    PIN[PIN_i + 1] = '\0';
+                    PIN_i++;
+                } else {
+                    if (PIN_i > 0) {
+                        PIN_i--;
+                        PIN[PIN_i] = '\0';
+                    }
+                }
+                // writeButtonPress(press);
+            }
+            // }
+
+            if (strcmp(PIN, "1234") == 0) {
+                stopAlarm();
+                strcpy(PIN, "");
+                PIN_i = 0;
+                // startCooldown();
+                //_delay_ms(1000);
+            } else if (strlen(PIN) == 4) {
+                strcpy(PIN, "");
+                PIN_i = 0;
+            }
         }
     }
 }

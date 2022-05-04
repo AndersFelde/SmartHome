@@ -11,6 +11,7 @@
 #include <avr/io.h>
 
 void initAlarm() {
+    coolDown = 0;
     sei();
 
     DDRB |= 1 << PINB0;  // setter B port 0 til output
@@ -33,8 +34,19 @@ ISR(TIMER1_COMPA_vect) {
     // funksjon som blir kallet til klokken har telt til OCR1A sin verdi
     CountDown--;
 
-    if (CountDown == 0)
-        triggerAlarm();
+    if (CountDown == 0) {
+        if (coolDown == 1) {
+            stopCooldown();
+        } else {
+            triggerAlarm();
+        }
+    }
+}
+
+void stopCooldown() {
+    coolDown = 0;
+    stopTimer();
+    clearScreen();
 }
 
 void triggerWarning(int seconds) {
@@ -57,4 +69,11 @@ void stopAlarm() {
     USART_Transmit('0');
     stopTimer();
     clearScreen();
+    startCooldown(5);
+}
+
+void startCooldown(int seconds) {
+    coolDown = 1;
+    CountDown = seconds;
+    startTimer();
 }
