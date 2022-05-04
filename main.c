@@ -84,7 +84,7 @@ int main(void) {
             sendString("Du har ");
             itoa(CountDown, buf, 10);
             sendString(buf);
-            sendString(" sek igjen");
+            sendString(" sek");
             setCursor(1, 2);
             sendString("PIN: ");
             sendString(PIN);
