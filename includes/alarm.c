@@ -5,6 +5,7 @@
  *  Author: Anders K Felde
  */
 #include "alarm.h"
+#include "LCD.h"
 #include "USART.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -41,16 +42,19 @@ void triggerWarning(int seconds) {
     USART_Transmit('2');
     CountDown = seconds;
     startTimer();
+    clearScreen();
 }
 
 void triggerAlarm() {
     Alarm = 1;
     USART_Transmit('1');
     stopTimer();
+    clearScreen();
 }
 
 void stopAlarm() {
     Alarm = 0;
     USART_Transmit('0');
     stopTimer();
+    clearScreen();
 }

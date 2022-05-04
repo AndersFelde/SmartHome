@@ -48,6 +48,9 @@ int main(void) {
     USART_Init(2400);
     int press;
     char receiveChar;
+    int PIN = 0;
+    int timesPressed = 0;
+
     while (1) {
         if (Alarm == 0) {
 
@@ -59,15 +62,8 @@ int main(void) {
             if (receiveChar != '0') {
                 clearScreen();
                 sendString("Fikk alarm");
-                setCursor(1, 2);
-
-                sendCharacter(receiveChar);
-                itoa(receiveChar, buf, 2);
-                sendString(" ");
-                sendString(buf);
-                _delay_ms(2000);
+                //_delay_ms(2000);
                 triggerWarning(60);
-                clearScreen();
             } else {
                 setCursor(1, 1);
                 sendString("Ingen alarm");
@@ -84,23 +80,25 @@ int main(void) {
             sendString("PIN: ");
 
             int writtenNum = 0;
-            int PIN = 0;
 
             // while (writtenNum < 4) {
             press = checkButtonPress(); // sjekker om knapp er trykket
             if (press != -1) {
                 PIN += press;
+                timesPressed++;
                 writeButtonPress(press);
             }
             // }
 
-            // if (PIN == 1 + 2 + 3 + 4) {
-            //   stopAlarm();
-            //} else {
-            //  triggerAlarm();
-            //}
+            if (PIN == 1 + 2 + 3 + 4) {
+                stopAlarm();
+                PIN = 0;
+                timesPressed = 0;
+            } else if (timesPressed == 4) {
+                triggerAlarm();
+            }
+
         } else if (Alarm == 1) {
-            // clearScreen();
             setCursor(1, 1);
             sendString("ENDELIG ALARM");
         }
