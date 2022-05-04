@@ -23,11 +23,13 @@ int main(void) {
     /* Replace with your application code */
     USART_Init(2400);
     char receiveChar;
+    DDRB |= 1 << PINB0;
+    DDRB |= 1 << PINB0;
 
     while (1) {
-        DDRB ^= 1 << PINB0;
+        PORTB ^= 1 << PINB0;
         _delay_ms(100);
-        DDRB ^= 1 << PINB1;
+        PORTB ^= 1 << PINB1;
         _delay_ms(100);
 
         receiveChar = USART_Receive();
