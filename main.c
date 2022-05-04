@@ -29,6 +29,7 @@ int main(void) {
     setUpLCD();
 
     DDRD &= ~(1 << PIND2); // setter D2 til input
+    DDRB |= (1 << PINB0);  // setter D7 til output
 
     int16_t count_a = 0;
     char show_a[16];
@@ -43,13 +44,12 @@ int main(void) {
     int sent = 0;
 
     while (1) {
-        PORTD |= 1 << PIND0;
+        PORTB |= 1 << PINB0;
         _delay_us(15);
 
-        PORTD &= ~(1 << PIND0);
+        PORTB &= ~(1 << PINB0);
         count_a = pulse / 58;
 
-        // USART_Transmit('0');
         if (count_a < 10 && count_a > 0) {
             if (!sent) {
                 USART_Transmit('1');
@@ -60,20 +60,14 @@ int main(void) {
         }
 
         itoa(count_a, show_a, 10);
-        // clearScreen();
         sendString("Distance Sensor");
         setCursor(1, 2);
         sendString("Distance=");
         sendString("   ");
         setCursor(10, 2);
         sendString(show_a);
-        // for (int i = 0; i < 3 - strlen(show_a); i++) {
-        //  sendCharacter(' ');
-        //}
         setCursor(13, 2);
         sendString("cm");
         setCursor(1, 1);
-
-        //_delay_ms(10);
     }
 }
