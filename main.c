@@ -7,9 +7,11 @@
 
 #include "includes/USART.h"
 #include <avr/io.h>
+#include <util/delay.h>
 
 void startAlarm() {
     PORTB |= (1 << PINB0);
+    PORTB &= ~(1 << PINB1);
     PORTB |= (1 << PINB1);
 }
 void stopAlarm() {
@@ -22,10 +24,12 @@ int main(void) {
     USART_Init(2400);
     char receiveChar;
 
-    DDRB |= (1 << PINB0);
-    DDRB |= (1 << PINB1);
-
     while (1) {
+        DDRB ^= 1 << PINB0;
+        _delay_ms(100);
+        DDRB ^= 1 << PINB1;
+        _delay_ms(100);
+
         receiveChar = USART_Receive();
 
         if (receiveChar == '1') {
